@@ -35,7 +35,7 @@
         {
             if ($user['username'] == $username && password_verify($password, $user['password']))
             {
-                $_SESSION['userID'] = $user->userID;
+                $_SESSION['userID'] = $user['userID'];
                 $_SESSION['username'] = $username;
                 $_SESSION['loggedin'] = true;
                 setcookie("active", true, time() + 3600); // 3600 s = 1 h

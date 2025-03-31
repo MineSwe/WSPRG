@@ -31,7 +31,6 @@
         if (mysqli_query($conn, $sql))
         {
             $message = "Message posted";
-            exit();
         }
         else
         {
@@ -40,6 +39,10 @@
     }
 
     $username = $_SESSION['username'];
+
+    $sql = "SELECT * FROM post, user WHERE post.userID = user.userID";
+    $result = mysqli_query($conn, $sql);
+    $result_array = mysqli_fetch_all($result, MYSQLI_ASSOC);
 ?>
 
 <body>
@@ -50,6 +53,22 @@
         <p><input type="text" name="postText" placeholder="Vad händer?" required>
         <input type="submit" name="postSubmit" value="Posta"></p>
     </form>
+
+    <table>
+        <tr>
+            <th>Användare</th>
+            <th>Post</th>
+            <th>Datum</th>
+        </tr>
+        <?php foreach ($result_array as $post)
+        {
+            $username = $post['username'];
+            $post = $post['post'];
+            $date = strtotime($post['date']);
+            echo "<tr><td>$username</td> <td>$post</td> <td>$date</td></tr>";
+        }
+        ?>
+    </table>
 
     <form method="POST">
         <p><input type="submit" name="logout" value="Logga Ut"></p>
