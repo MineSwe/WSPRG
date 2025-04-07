@@ -26,7 +26,7 @@
     if (isset($_POST['postSubmit']))
     {
         $userID = $_SESSION['userID'];
-        $postMessage = $_POST['postText'];
+        $postMessage = $_POST['postMessage'];
         $sql = "INSERT INTO post (userID, message) VALUES ('$userID', '$postMessage')";
         if (mysqli_query($conn, $sql))
         {
@@ -38,11 +38,47 @@
         }
     }
 
+    if (isset($_POST['follow']))
+    {
+        $followUsername = $_POST['followUsername'];
+        $followUserID = $_POST['followUserID'];
+        $userID = $_SESSION['userID'];
+        $sql = "INSERT INTO follow (followUserID, userID) VALUES ('$followUserID', '$userID')";
+        if (mysqli_query($conn, $sql))
+        {
+            $message = "Followed $followUsername";
+        }
+        else
+        {
+            $error = "Databasen har fått ett error: " . mysqli_error($conn);
+        }
+    }
+
+    if (isset($_POST['unfollow']))
+    {
+        $unfollowUsername = $_POST['unfollowUsername'];
+        $unfollowUserID = $_POST['unfollowUserID'];
+        $userID = $_SESSION['userID'];
+        $sql = "DELETE FROM follow WHERE userID == '$userID' AND followUserID == '$unfollowUserID'";
+        if (mysqli_query($conn, $sql))
+        {
+            $message = "Unfollowed $unfollowUsername";
+        }
+        else
+        {
+            $error = "Databasen har fått ett error: " . mysqli_error($conn);
+        }
+    }
+
     $username = $_SESSION['username'];
 
     $sql = "SELECT * FROM post, user WHERE post.userID = user.userID";
-    $result = mysqli_query($conn, $sql);
-    $result_array = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $postResult = mysqli_query($conn, $sql);
+    $postResult_array = mysqli_fetch_all($postResult, MYSQLI_ASSOC);
+
+    $sql = "SELECT * FROM follow";
+    $followResult = mysqli_query($conn, $sql);
+    $followResult_array = mysqli_fetch_all($followResult, MYSQLI_ASSOC);
 ?>
 
 <body>
@@ -50,7 +86,7 @@
     <h2>Välkommen <?php echo $username; ?></h2>
     <p> <?php if(isset($message)) echo $message; ?> </p>
     <form method="POST">
-        <p><input type="text" name="postText" placeholder="Vad händer?" autocomplete="off" required>
+        <p><input type="text" name="postMessage" placeholder="Vad händer?" autocomplete="off" required>
         <input type="submit" name="postSubmit" value="Posta"></p>
     </form>
 
@@ -60,13 +96,36 @@
             <th>Meddelande</th>
             <th>Datum</th>
         </tr>
-        <?php foreach ($result_array as $post)
+        <?php foreach ($postResult_array as $post)
         {
-            $username = $post['username'];
+            $postUsername = $post['username'];
+            $postUserID = $post['userID'];
             $postMessage = $post['message'];
-            $date = $post['date'];
+            $postDate = $post['date'];
             
-            echo "<tr><td>$username</td> <td>$postMessage</td><td>$date</td></tr>";
+            echo "<tr><td>$postUsername</td> <td>$postMessage</td><td>$postDate</td>";
+            if ($postUsername != $username)
+            {
+                $userID = $_SESSION['userID'];
+                $isFollowingUser = false;
+                foreach ($followResult_array as $follow)
+                {
+                    if ($follow['followUserID'] == $postUserID && $follow['userID'] == $userID)
+                    {
+                        echo "<td> <form method='POST'> <input type='hidden' name='unfollowUserID' value='$postUserID'>
+                        <input type='hidden' name='unfollowUsername' value='$postUsername'>
+                        <input type='submit' name='unfollow' value='Unfollow'></form> <td>";
+                        $isFollowingUser = true;
+                    }
+                }
+                if ($isFollowingUser == false)
+                {
+                    echo "<td> <form method='POST'> <input type='hidden' name='followUserID' value='$postUserID'>
+                    <input type='hidden' name='followUsername' value='$postUsername'>
+                    <input type='submit' name='follow' value='Follow'></form> <td>";
+                }
+            }
+            echo "</tr>";
         }
         ?>
     </table>
