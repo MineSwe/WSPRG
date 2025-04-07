@@ -26,8 +26,8 @@
     if (isset($_POST['postSubmit']))
     {
         $userID = $_SESSION['userID'];
-        $postText = $_POST['postText'];
-        $sql = "INSERT INTO post (userID, post) VALUES ('$userID', '$postText')";
+        $postMessage = $_POST['postText'];
+        $sql = "INSERT INTO post (userID, message) VALUES ('$userID', '$postMessage')";
         if (mysqli_query($conn, $sql))
         {
             $message = "Message posted";
@@ -50,22 +50,23 @@
     <h2>Välkommen <?php echo $username; ?></h2>
     <p> <?php if(isset($message)) echo $message; ?> </p>
     <form method="POST">
-        <p><input type="text" name="postText" placeholder="Vad händer?" required>
+        <p><input type="text" name="postText" placeholder="Vad händer?" autocomplete="off" required>
         <input type="submit" name="postSubmit" value="Posta"></p>
     </form>
 
     <table>
         <tr>
             <th>Användare</th>
-            <th>Post</th>
+            <th>Meddelande</th>
             <th>Datum</th>
         </tr>
         <?php foreach ($result_array as $post)
         {
             $username = $post['username'];
-            $post = $post['post'];
-            $date = strtotime($post['date']);
-            echo "<tr><td>$username</td> <td>$post</td> <td>$date</td></tr>";
+            $postMessage = $post['message'];
+            $date = $post['date'];
+            
+            echo "<tr><td>$username</td> <td>$postMessage</td><td>$date</td></tr>";
         }
         ?>
     </table>
