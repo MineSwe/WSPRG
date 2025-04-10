@@ -56,10 +56,9 @@
 
     if (isset($_POST['unfollow']))
     {
+        $unfollowID = $_POST['unfollowID'];
         $unfollowUsername = $_POST['unfollowUsername'];
-        $unfollowUserID = $_POST['unfollowUserID'];
-        $userID = $_SESSION['userID'];
-        $sql = "DELETE FROM follow WHERE userID == '$userID' AND followUserID == '$unfollowUserID'";
+        $sql = "DELETE FROM follow WHERE followID = '$unfollowID'";
         if (mysqli_query($conn, $sql))
         {
             $message = "Unfollowed $unfollowUsername";
@@ -112,7 +111,8 @@
                 {
                     if ($follow['followUserID'] == $postUserID && $follow['userID'] == $userID)
                     {
-                        echo "<td> <form method='POST'> <input type='hidden' name='unfollowUserID' value='$postUserID'>
+                        $followID = $follow['followID'];
+                        echo "<td> <form method='POST'> <input type='hidden' name='unfollowID' value='$followID'>
                         <input type='hidden' name='unfollowUsername' value='$postUsername'>
                         <input type='submit' name='unfollow' value='Unfollow'></form> <td>";
                         $isFollowingUser = true;

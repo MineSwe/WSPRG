@@ -21,11 +21,8 @@
 
     if (isset($_POST['submit']))
     {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-
-        filter_input(INPUT_POST, $username, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        filter_input(INPUT_POST, $password, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         $sql = "SELECT * FROM user";
         $result = mysqli_query($conn, $sql);
