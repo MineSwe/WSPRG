@@ -7,7 +7,7 @@
 </head>
 
 <?php 
-    header('Location: /5-Slutprojekt/501/member.php');
+    header("Location: member.php");
 ?>
 
 <body>

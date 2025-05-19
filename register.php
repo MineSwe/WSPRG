@@ -1,4 +1,4 @@
-<?php include 'database.php'; ?>
+<?php include 'database.php';?>
 
 <!DOCTYPE html>
 <html lang="sv">
@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M: Registrera</title>
+    <link rel="icon" type="image/x-icon" href="icon.png">
 </head>
 
 <?php
@@ -31,7 +32,7 @@
 
             if (mysqli_query($conn, $sql))
             {
-                header('Location: /5-Slutprojekt/501/login.php?registered');
+                header("Location: login.php?registered");
                 exit();
             }
             else
@@ -47,12 +48,12 @@
     <h1>Registera dig</h1>
     <form method="POST">
         <p><?php if (isset($error)) echo $error; ?></p>
-        <p><label>Användarnamn:</label></p>
-        <p><input type="text" name="username" required pattern="[A-Öa-ö0-9\s]+" placeholder="Använd bara bokstäver och siffror" style="width:210px"></p>
-        <p><label>Lösenord:</label></p>
-        <p><input type="text" name="password" required minlength="8" placeholder="Minst 8 tecken"></p>
+        <p><label for="username">Användarnamn:</label></p>
+        <p><input type="text" name="username" id="username" required pattern="[A-Öa-ö0-9\s]+" placeholder="Använd bara bokstäver och siffror" style="width:210px"></p>
+        <p><label for="password">Lösenord:</label></p>
+        <p><input type="text" name="password" id="password" required minlength="8" placeholder="Minst 8 tecken"></p>
         <p><input type="submit" name="submit"></p>
-        <p>Har du redan ett konto? <a href="/5-Slutprojekt/501/login.php">Logga in här</a></p>
+        <p>Har du redan ett konto? <a href="login.php">Logga in här</a></p>
     </form>
 </body>
 </html>
