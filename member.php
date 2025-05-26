@@ -48,6 +48,11 @@
         align-items: center;
         justify-content: center;
     }
+
+    .followButton form {
+        display: flex;
+        justify-content: left;
+    }
     </style>
 </head>
 
@@ -232,7 +237,30 @@
                 }
                 $postID = $post['postID'];
                 
-                echo "<tr style='white-space: pre-line'><td>$postUsername <br>$postDate</td> <td>$postMessage</td>";
+                echo "<tr style='white-space: pre-line'><td class='followButton'>$postUsername";
+                if ($postUsername != $username)
+                {
+                    $userID = $_SESSION['userID'];
+                    $isFollowingUser = false;
+                    foreach ($followResult_array as $follow)
+                    {
+                        if ($follow['followUserID'] == $postUserID && $follow['userID'] == $userID)
+                        {
+                            $followID = $follow['followID'];
+                            echo "<form method='POST'> <input type='hidden' name='unfollowID' value='$followID'>
+                            <input type='hidden' name='unfollowUsername' value='$postUsername'>
+                            <input type='submit' name='unfollow' value='Unfollow'></form>";
+                            $isFollowingUser = true;
+                        }
+                    }
+                    if ($isFollowingUser == false)
+                    {
+                        echo "<form method='POST'> <input type='hidden' name='followUserID' value='$postUserID'>
+                        <input type='hidden' name='followUsername' value='$postUsername'>
+                        <input type='submit' name='follow' value='Follow'></form>";
+                    }
+                }
+                echo "<br>$postDate </td> <td>$postMessage</td>";
                 if ($postUsername != $username)
                 {
                     $userID = $_SESSION['userID'];
