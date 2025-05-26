@@ -68,7 +68,7 @@
 
     if (isset($_GET['success']))
     {
-        $message = "Meddelandet har skickats!";
+        $message = "Meddelandet har skickats";
     }
 
     if (isset($_POST['postSubmit']))
@@ -96,7 +96,7 @@
         $sql = "INSERT INTO follow (followUserID, userID) VALUES ('$followUserID', '$userID')";
         if (mysqli_query($conn, $sql))
         {
-            $message = "Followed $followUsername";
+            $message = "Följer $followUsername";
         }
         else
         {
@@ -111,7 +111,7 @@
         $sql = "DELETE FROM follow WHERE followID = '$unfollowID'";
         if (mysqli_query($conn, $sql))
         {
-            $message = "Unfollowed $unfollowUsername";
+            $message = "Slutade följa $unfollowUsername";
         }
         else
         {
@@ -125,7 +125,7 @@
         $sql = "DELETE FROM post WHERE postID = '$postID'";
         if (mysqli_query($conn, $sql))
         {
-            $message = "Deleted post";
+            $message = "Raderade meddelandet";
         }
         else
         {
@@ -144,83 +144,129 @@
     $followResult_array = mysqli_fetch_all($followResult, MYSQLI_ASSOC);
 
     $sql = "SELECT * FROM user";
-    $usernameResult = mysqli_query($conn, $sql);
-    $username_array = mysqli_fetch_all($followResult, MYSQLI_ASSOC);
+    $userResult = mysqli_query($conn, $sql);
+    $user_array = mysqli_fetch_all($userResult, MYSQLI_ASSOC);
 ?>
 
 <body>
-    <img src="icon.png" alt="M" width="100px">
-    <h2>Välkommen <?php echo $username; ?></h2>
-    <form method="POST">
-        <p><input type="submit" name="darkmode" value="<?php echo$darkmodeMessage ?>"></p>
-    </form>
-    <p> <?php if(isset($message)) echo $message; ?> </p>
-    <form method="POST">
-        <p><textarea rows="100" style="width:80%; height:150px" name="postMessage" required>Vad händer?</textarea></p>
-        <p><input type="submit" name="postSubmit" value="Posta"></p>
-    </form>
+    <section style="text-align: center;">
+        <img src="icon.png" alt="M" width="100px">
+    </section>
+    
+    <section style="text-align:center; width:33%; float:left;"><p></p></section>
 
-    <table>
-        <tr>
-            <th>Användare</th>
-            <th>Meddelande</th>
-            <th></th>
-        </tr>
-        <?php foreach ($postResult_array as $post)
-        {
-            $postUsername = $post['username'];
-            $postUserID = $post['userID'];
-            $postMessage = $post['message'];
-            $postDate = $post['date'];
-            $postDate = date_create($post['date']);
-            if (date('dmo', time()) == date_format($postDate,'dmo'))
+    <section style="text-align:center; width:33%; float:left;">
+        <h2>Välkommen <?php echo $username; ?></h2>
+        <form method="POST">
+            <p><input type="submit" name="darkmode" value="<?php echo$darkmodeMessage ?>"></p>
+        </form>
+        <p> <?php if(isset($message)) echo $message; ?> </p>
+        <form method="POST">
+            <p><textarea rows="100" style="width:100%; height:150px; resize:none" name="postMessage" placeholder="Vad händer?" wrap="soft" required></textarea></p>
+            <p><input type="submit" name="postSubmit" value="Posta"></p>
+        </form>
+    </section>
+
+    <section style="text-align:center; float:left; width:33%;">
+        <h2>Members:</h2>
+        <table style="margin-left:auto; margin-right: auto">
+            <?php $userID = $_SESSION['userID'];
+            foreach ($user_array as $member)
             {
-                $postDate = 'Idag ' . date_format(date_create($post['date']),'H:i');
-            }
-            else if (date('z', time()) - date_format($postDate,'z') == 1)
-            {
-                $postDate = 'Igår ' . date_format(date_create($post['date']),'H:i');
-            }
-            else
-            {
-                $postDate = date_format(date_create($post['date']),'F jS o H:i');
-            }
-            $postID = $post['postID'];
-            
-            echo "<tr style='white-space: pre-line'><td>$postUsername <br>$postDate</td> <td>$postMessage</td>";
-            if ($postUsername != $username)
-            {
-                $userID = $_SESSION['userID'];
-                $isFollowingUser = false;
-                foreach ($followResult_array as $follow)
+                if ($member['userID'] != $userID)
                 {
-                    if ($follow['followUserID'] == $postUserID && $follow['userID'] == $userID)
+                    $memberUsername = $member['username'];
+                    echo "<tr><td>$memberUsername</td>";
+                    $isFollowingUser = false;
+                    foreach ($followResult_array as $follow)
                     {
-                        $followID = $follow['followID'];
-                        echo "<td class='tableButton'> <form method='POST'> <input type='hidden' name='unfollowID' value='$followID'>
-                        <input type='hidden' name='unfollowUsername' value='$postUsername'>
-                        <input type='submit' name='unfollow' value='Unfollow'></form> <td>";
-                        $isFollowingUser = true;
+                        if ($follow['followUserID'] == $member['userID'] && $follow['userID'] == $userID)
+                        {
+                            $followID = $follow['followID'];
+                            echo "<td class='tableButton'> <form method='POST'> 
+                            <input type='hidden' name='unfollowID' value='$followID'>
+                            <input type='hidden' name='unfollowUsername' value='$memberUsername'>
+                            <input type='submit' name='unfollow' value='Unfollow'></form> <td>";
+                            $isFollowingUser = true;
+                        }
+                    }
+                    if ($isFollowingUser == false)
+                    {
+                        $memberID = $member['userID'];
+                        echo "<td class='tableButton'> <form method='POST'> 
+                        <input type='hidden' name='followUserID' value='$memberID'>
+                        <input type='hidden' name='followUsername' value='$memberUsername'>
+                        <input type='submit' name='follow' value='Follow'></form> <td>";
                     }
                 }
-                if ($isFollowingUser == false)
-                {
-                    echo "<td class='tableButton'> <form method='POST'> <input type='hidden' name='followUserID' value='$postUserID'>
-                    <input type='hidden' name='followUsername' value='$postUsername'>
-                    <input type='submit' name='follow' value='Follow'></form> <td>";
-                }
             }
-            else
-            {
-                echo "<td class='tableButton'> <form method='POST'> <input type='hidden' name='postID' value='$postID'>
-                <input type='submit' name='deletePost' value='Delete'></form> <td>";
-            }
-            echo "</tr>";
-        }
-        ?>
-    </table>
+            ?>
+        </table>
+    </section>
 
-    <form method="POST">
+    <section style="content: '';display: table;clear: both;">
+        <table>
+            <tr>
+                <th>Användare</th>
+                <th>Meddelande</th>
+                <th></th>
+            </tr>
+            <?php foreach ($postResult_array as $post)
+            {
+                $postUsername = $post['username'];
+                $postUserID = $post['userID'];
+                $postMessage = $post['message'];
+                $postDate = $post['date'];
+                $postDate = date_create($post['date']);
+                if (date('dmo', time()) == date_format($postDate,'dmo'))
+                {
+                    $postDate = 'Idag ' . date_format(date_create($post['date']),'H:i');
+                }
+                else if (date('z', time()) - date_format($postDate,'z') == 1)
+                {
+                    $postDate = 'Igår ' . date_format(date_create($post['date']),'H:i');
+                }
+                else
+                {
+                    $postDate = date_format(date_create($post['date']),'F jS o H:i');
+                }
+                $postID = $post['postID'];
+                
+                echo "<tr style='white-space: pre-line'><td>$postUsername <br>$postDate</td> <td>$postMessage</td>";
+                if ($postUsername != $username)
+                {
+                    $userID = $_SESSION['userID'];
+                    $isFollowingUser = false;
+                    foreach ($followResult_array as $follow)
+                    {
+                        if ($follow['followUserID'] == $postUserID && $follow['userID'] == $userID)
+                        {
+                            $followID = $follow['followID'];
+                            echo "<td class='tableButton'> <form method='POST'> <input type='hidden' name='unfollowID' value='$followID'>
+                            <input type='hidden' name='unfollowUsername' value='$postUsername'>
+                            <input type='submit' name='unfollow' value='Unfollow'></form> <td>";
+                            $isFollowingUser = true;
+                        }
+                    }
+                    if ($isFollowingUser == false)
+                    {
+                        echo "<td class='tableButton'> <form method='POST'> <input type='hidden' name='followUserID' value='$postUserID'>
+                        <input type='hidden' name='followUsername' value='$postUsername'>
+                        <input type='submit' name='follow' value='Follow'></form> <td>";
+                    }
+                }
+                else
+                {
+                    echo "<td class='tableButton'> <form method='POST'> <input type='hidden' name='postID' value='$postID'>
+                    <input type='submit' name='deletePost' value='Delete'></form> <td>";
+                }
+                echo "</tr>";
+            }
+            ?>
+        </table>
+    </section>
+
+    <form method="POST" style="text-align: center;">
         <p><input type="submit" name="logout" value="Logga Ut"></p>
     </form>
 </body>
